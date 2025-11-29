@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    # デフォルトはローカル Postgres。コンテナや本番では SPRING_DATASOURCE_* 環境変数で上書き
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/simplewebapp}
+    username: ${SPRING_DATASOURCE_USERNAME:simpleuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:simplepass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update    # 必要に応じて validate に変更
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  sql:
+    init:
+      mode: always        # data.sql を常に流す（開発用）
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+app:
+  jwt:
+    # 本番では必ず JWT_SECRET / JWT_VALIDITY_MS を環境変数で上書き
+    secret: ${JWT_SECRET:change_this_secret_key_to_32_chars_minimum}
+    validity-ms: ${JWT_VALIDITY_MS:3600000}  # 1h
+
+  cors:
+    # フロントのオリジン。開発は localhost:5173、本番は https://your-frontend.example を環境変数で指定
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

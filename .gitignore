@@ -1,0 +1,14 @@
+# Java
+target/
+*.log
+*.class
+*.iml
+.idea/
+
+# Node (React)
+node_modules/
+dist/
+build/
+
+# OS
+.DS_Store
