@@ -17,7 +17,7 @@ spring:
 
   sql:
     init:
-      mode: update             # 本番では data.sql を流さない
+      mode: always             # 本番では data.sql を流さない
 
 logging:
   level:
