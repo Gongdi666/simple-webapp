@@ -1,6 +1,6 @@
 // frontend/src/LoginForm.tsx
 import React, { useState } from "react";
-import { login, setToken } from "./api";
+import { login, setToken } from "../api";
 
 type Props = {
   onLoggedIn: () => void;

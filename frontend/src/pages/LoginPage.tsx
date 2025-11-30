@@ -10,9 +10,8 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     try {
-      const token = await login({ username, password });
+      const { token } = await login(username, password);
       localStorage.setItem("jwt", token);
-      // TODO: 案件一覧(スワイプ画面)に遷移
       window.location.href = "/";
     } catch (err) {
       setError("ログインに失敗しました");

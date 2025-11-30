@@ -1,6 +1,6 @@
 import React from "react";
 import TinderCard from "react-tinder-card";
-import type { SwipeItem } from "../types";
+import type { SwipeItem } from "../App";
 
 type Props = {
   item: SwipeItem;
