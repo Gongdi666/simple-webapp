@@ -1,7 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
+// Railway の公開ホスト名を追加
+const allowedHosts = ["simple-webapp-front-production.up.railway.app"];
+
 export default defineConfig({
   plugins: [react()],
-})
+  server: {
+    host: true,
+    port: 5173,
+  },
+  preview: {
+    host: true,
+    port: 8080,
+    allowedHosts,
+  },
+});
