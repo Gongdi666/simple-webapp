@@ -29,7 +29,7 @@ const App: React.FC = () => {
     if (!isLoggedIn) return;
 
     setLoading(true);
-    apiFetch("/api/projects")
+    apiFetch("/projects")
       .then((res) => res.json())
       .then((data: SwipeItem[]) => setItems(data))
       .catch((e) => {
