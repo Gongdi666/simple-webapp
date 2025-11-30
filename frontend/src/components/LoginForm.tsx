@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiFetch } from "../api";
 
 type Props = {
   onLoggedIn: () => void;
@@ -12,30 +13,26 @@ const LoginForm: React.FC<Props> = ({ onLoggedIn }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await apiFetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
-      if (!res.ok) {
-        throw new Error("ログインに失敗しました");
-      }
-
       const data = await res.json();
 
-      // ★ JWT と一緒にユーザー名も保存
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", username);
+      // 返却されるトークン名に合わせて必要ならここを変更
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       onLoggedIn();
-    } catch (e: any) {
-      console.error(e);
-      setError(e?.message ?? "ログインに失敗しました");
+    } catch (err) {
+      console.error(err);
+      setError("ログインに失敗しました。ユーザー名とパスワードを確認してください。");
     } finally {
       setLoading(false);
     }
@@ -45,104 +42,126 @@ const LoginForm: React.FC<Props> = ({ onLoggedIn }) => {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#020617",
-        color: "#e5e7eb",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        background:
+          "radial-gradient(circle at top, #1e293b 0, #020617 40%, #000 100%)",
         padding: "16px",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: 420,
-          padding: 24,
-          borderRadius: 24,
-          background:
-            "radial-gradient(circle at top left, #1f2937 0, #020617 70%)",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.8)",
-          border: "1px solid rgba(148,163,184,0.4)",
-          boxSizing: "border-box",
+          maxWidth: "420px",
+          backgroundColor: "rgba(15,23,42,0.9)",
+          borderRadius: "16px",
+          padding: "24px 24px 28px",
+          boxShadow:
+            "0 25px 50px -12px rgba(15,23,42,0.9), 0 0 0 1px rgba(148,163,184,0.2)",
+          color: "#e5e7eb",
         }}
       >
         <h1
           style={{
-            fontSize: "1.7rem",
+            fontSize: "20px",
             fontWeight: 700,
-            marginBottom: 4,
+            marginBottom: "4px",
+            color: "#f9fafb",
           }}
         >
-          募集中SES案件
+          SES Like にログイン
         </h1>
-        <p style={{ opacity: 0.8, marginBottom: 16, fontSize: "0.9rem" }}>
-          ログインして案件をスワイプしながらチェック
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#9ca3af",
+            marginBottom: "20px",
+          }}
+        >
+          テストユーザー（ユーザー名: <b>test</b>, パスワード:{" "}
+          <b>password</b>）でログインできます。
         </p>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <label style={{ fontSize: "0.85rem" }}>
-            ユーザー名
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: "12px" }}>
+          <div style={{ display: "grid", gap: "4px" }}>
+            <label
+              htmlFor="username"
+              style={{ fontSize: "13px", fontWeight: 500, color: "#e5e7eb" }}
+            >
+              ユーザー名
+            </label>
             <input
+              id="username"
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={{
-                marginTop: 4,
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.5)",
-                backgroundColor: "rgba(15,23,42,0.85)",
-                color: "#e5e7eb",
-                outline: "none",
+                padding: "8px 10px",
+                borderRadius: "8px",
+                border: "1px solid #4b5563",
+                backgroundColor: "#020617",
+                color: "#f9fafb",
+                fontSize: "14px",
               }}
+              autoComplete="username"
             />
-          </label>
+          </div>
 
-          <label style={{ fontSize: "0.85rem" }}>
-            パスワード
+          <div style={{ display: "grid", gap: "4px" }}>
+            <label
+              htmlFor="password"
+              style={{ fontSize: "13px", fontWeight: 500, color: "#e5e7eb" }}
+            >
+              パスワード
+            </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{
-                marginTop: 4,
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.5)",
-                backgroundColor: "rgba(15,23,42,0.85)",
-                color: "#e5e7eb",
-                outline: "none",
+                padding: "8px 10px",
+                borderRadius: "8px",
+                border: "1px solid #4b5563",
+                backgroundColor: "#020617",
+                color: "#f9fafb",
+                fontSize: "14px",
               }}
+              autoComplete="current-password"
             />
-          </label>
+          </div>
 
           {error && (
-            <div
+            <p
               style={{
-                marginTop: 4,
-                fontSize: "0.8rem",
-                color: "#fca5a5",
+                fontSize: "12px",
+                color: "#f97373",
+                marginTop: "4px",
               }}
             >
               {error}
-            </div>
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
             style={{
-              marginTop: 8,
-              padding: "10px 16px",
-              borderRadius: 999,
+              marginTop: "6px",
+              padding: "12px 16px",
+              width: "100%",
+              borderRadius: "999px",
               border: "none",
-              background:
-                "linear-gradient(135deg, rgba(96,165,250), rgba(244,114,182))",
+              fontSize: "16px",
               fontWeight: 700,
-              color: "#020617",
+              color: "#0f172a",
               cursor: loading ? "default" : "pointer",
               opacity: loading ? 0.7 : 1,
+              backgroundImage: "linear-gradient(to right, #60a5fa, #a78bfa, #f472b6)",
+              boxShadow:
+                "0 10px 25px -5px rgba(96,165,250,0.4), 0 0 0 1px rgba(167,139,250,0.3)",
+              transition: "all 0.2s ease",
             }}
           >
             {loading ? "ログイン中..." : "ログイン"}
