@@ -1,17 +1,18 @@
 package project.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import project.dto.ProjectLikeRequest;
-import project.entity.Project;
+import project.dto.ProjectLikeResponse;
 import project.entity.ProjectLike;
-import project.entity.ProjectVerdict;
-import project.repository.ProjectRepository;
 import project.service.ProjectLikeService;
 import security.CustomUserDetails;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/project-likes")
@@ -19,45 +20,41 @@ import java.util.List;
 public class ProjectLikeController {
 
     private final ProjectLikeService projectLikeService;
-    private final ProjectRepository projectRepository;
 
     /**
-     * スワイプ結果（LIKE / DISLIKE / HOLD）の登録（Upsert）
+     * スワイプ結果（LIKE / DISLIKE / HOLD）の登録（Upsert 相当）
+     * フロントからは JSON:
+     * { "projectId": 1, "verdict": "LIKE", "comment": "" }
+     * が送られてくる前提。
      */
     @PostMapping
-    public ProjectLike addOrUpdateVote(
+    public ProjectLikeResponse addOrUpdateVote(
             @RequestBody ProjectLikeRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return projectLikeService.addOrUpdateVote(
+        if (userDetails == null) {
+            // 認証情報が取れていない場合は 401 を返す
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+
+        ProjectLike saved = projectLikeService.addOrUpdateVote(
                 request.getProjectId(),
                 userDetails.getUser(),
-                request.getVerdict(),
+                request.getVerdict(),   // Service 側が String verdict を受け取る実装のため
                 request.getComment()
         );
+
+        // Entity -> DTO に詰め替えて返却（user / project の Hibernate プロキシは返さない）
+        return ProjectLikeResponse.from(saved);
     }
 
     /**
-     * 案件ごとの評価一覧
+     * 指定プロジェクトのスワイプ結果一覧取得（用途が出てきたら使う想定）
      */
     @GetMapping("/{projectId}")
-    public List<ProjectLike> getProjectVotes(@PathVariable Long projectId) {
-        return projectLikeService.getProjectVotes(projectId);
-    }
-
-    /**
-     * ログインユーザーが LIKE した案件一覧
-     */
-    @GetMapping("/my")
-    public List<Project> getMyLikes(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return projectLikeService.getUserLikedProjects(userDetails.getUser().getId());
-    }
-
-    /**
-     * LIKE 数ランキング（DESC）
-     */
-    @GetMapping("/ranking")
-    public List<?> getRanking(@RequestParam(defaultValue = "10") int limit) {
-        return projectLikeService.getTopRankedProjects(limit);
+    public List<ProjectLikeResponse> getVotes(@PathVariable Long projectId) {
+        return projectLikeService.getProjectVotes(projectId).stream()
+                .map(ProjectLikeResponse::from)
+                .collect(Collectors.toList());
     }
 }
