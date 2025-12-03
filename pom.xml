@@ -80,6 +80,20 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- Flyway (DBマイグレーション用) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>10.17.0</version>
+        </dependency>
+
+        <!-- ★ PostgreSQL 用のサポートモジュールを追加 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.17.0</version>
+        </dependency>
     </dependencies>
 
     <build>
