@@ -1,4 +1,4 @@
-package project.model;
+package project.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,4 +26,15 @@ public class Project {
     private Integer unitPrice;
 
     private String workStyle;
+
+    // --- 追加 ---
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String summary;
+
+    private Integer sortOrder;
 }

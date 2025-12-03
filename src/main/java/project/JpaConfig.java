@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "user.repository"      // ★ 追加
 })
 @EntityScan(basePackages = {
-        "project.model",
+        "project.entity",
         "user.entity"          // ★ 追加（User エンティティのパッケージ）
 })
 public class JpaConfig {

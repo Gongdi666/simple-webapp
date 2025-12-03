@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll() // ログイン系は全許可
+                        .requestMatchers("/api/projects").authenticated()
+                        .requestMatchers("/api/project-likes").authenticated()
                         .anyRequest().authenticated()
                 );
 

@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import security.CustomUserDetails;
 import user.entity.User;              // ★ こっちの User を import
 import user.repository.UserRepository;
 
@@ -23,10 +24,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("not found: " + username));
 
         // ★ ここでセキュリティ用の UserDetails を作る
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())  // DBに入ってるパスワード
-                .authorities(user.getRole())
-                .build();
+        return new CustomUserDetails(user);
     }
 }
