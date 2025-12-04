@@ -1,56 +1,83 @@
-/* 画像＋info＋影付きの Tinder UI カード */
-
+/* Tinderカード全体の配置 */
 .swipe-card {
   display: flex;
   justify-content: center;
+  padding: 20px 0;
 }
 
+/* カード本体（高さを固定しない = 見切れ防止の最適解） */
 .card-container {
   width: 90%;
   max-width: 400px;
-  height: 580px;
-  background: #ffffff;
+
+  /* ★ここが重要（見切れ防止の3行のみ修正） */
+  max-height: 85vh;        /* 画面より大きくならない */
+  height: auto;            /* 固定高さをやめる */
+  overflow-y: auto;        /* 内容が増えてもカード内スクロール */
+
+  background: #0f172a;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(96, 165, 250, 0.35),
+    0 0 24px rgba(168, 85, 247, 0.25),
+    0 0 32px rgba(236, 72, 153, 0.25);
+
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* 画像 */
 .card-image {
   width: 100%;
-  height: 60%;
+  height: 280px;       /* 固定高さで問題なし */
   object-fit: cover;
 }
 
+/* 情報エリア */
 .card-info {
   padding: 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  color: #e2e8f0;
 }
 
 .card-title {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
+  color: #f8fafc;
 }
 
 .card-summary {
-  color: #6b7280;
+  color: #94a3b8;
   margin-bottom: 8px;
   font-size: 0.9rem;
 }
 
+/* 詳細ボタン */
 .detail-button {
-  margin-top: auto;
-  margin-bottom: 4px;
-  padding: 10px 14px;
+  margin-top: 20px;
+  padding: 10px 16px;
   border-radius: 9999px;
   border: none;
-  background: linear-gradient(135deg, rgba(96,165,250), rgba(244,114,182));
-  color: #020617;
+  background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+  color: #ffffff;
   font-size: 0.95rem;
   font-weight: bold;
   cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.detail-button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.detail-button:active {
+  transform: scale(0.96);
 }
