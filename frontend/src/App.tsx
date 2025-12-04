@@ -17,7 +17,6 @@ export type SwipeItem = {
 
 const App: React.FC = () => {
   const [items, setItems] = useState<SwipeItem[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getToken());
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SwipeItem | null>(null);
@@ -86,7 +85,6 @@ const App: React.FC = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("username");
       setItems([]);
-      setCurrentIndex(0);
       setSelectedItem(null);
       setIsLoggedIn(false);
       setIsLoggingOut(false);
