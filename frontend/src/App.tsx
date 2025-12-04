@@ -36,14 +36,12 @@ const App: React.FC = () => {
 
     setLoading(true);
     apiFetch("/projects")
-        .then((data: SwipeItem[]) => setItems(data))
-        .catch((e) => console.error("API取得に失敗しました:", e))
-        .finally(() => setLoading(false));
+      .then((data: SwipeItem[]) => setItems(data))
+      .catch((e) => console.error("API取得に失敗しました:", e))
+      .finally(() => setLoading(false));
   }, [isLoggedIn]);
 
-  // --------------------
-  // ★ 改善案③：画像プリロード
-  // --------------------
+  // 画像プリロード
   useEffect(() => {
     items.forEach((item) => {
       if (item.imageUrl) {
@@ -54,20 +52,20 @@ const App: React.FC = () => {
   }, [items]);
 
   // --------------------
-  // ★ スワイプ処理（非同期 API）
+  // スワイプ処理
   // --------------------
   const handleSwipe = (direction: string, id: number) => {
     console.log(`swiped ${direction}: id=${id}`);
 
-    // ① UI 先に更新（高速）
+    // UI 更新
     setItems((prev) => prev.filter((item) => item.id !== id));
 
-    // ② API は裏で送信
+    // API 送信
     const verdict = direction === "right" ? "LIKE" : "DISLIKE";
     apiFetch("/project-likes", {
       method: "POST",
       headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         projectId: id,
@@ -132,9 +130,9 @@ const App: React.FC = () => {
   }
 
   // --------------------
-  // ローディング or データ無し
+  // ローディング
   // --------------------
-  if (loading || items.length === 0) {
+  if (loading) {
     return (
       <div
         style={{
@@ -153,10 +151,77 @@ const App: React.FC = () => {
   }
 
   // --------------------
+  // 全スワイプ完了
+  // --------------------
+  if (!loading && items.length === 0) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "#020617",
+          color: "#e5e7eb",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "1.2rem",
+          padding: "20px",
+        }}
+      >
+        <div style={{ marginBottom: "16px" }}>すべての案件を確認しました 🎉</div>
+
+        <button
+          onClick={handleLogout}
+          style={{
+            marginTop: 20,
+            padding: "10px 18px",
+            background:
+              "linear-gradient(135deg, #60a5fa, #a855f7, #ec4899)",
+            border: "none",
+            borderRadius: 999,
+            color: "#fff",
+            cursor: "pointer",
+            fontWeight: 600,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+            transition: "opacity 0.2s",
+          }}
+        >
+          ログアウト
+        </button>
+      </div>
+    );
+  }
+
+  // --------------------
   // メイン UI
   // --------------------
   return (
     <>
+      {/* ★ 復活：楕円グラデ Login中 ボタン */}
+      <button
+        onClick={handleLogout}
+        style={{
+          position: "fixed",
+          top: 16,
+          right: 16,
+          zIndex: 9999,
+          padding: "14px 22px",
+          borderRadius: 999,
+          background:
+            "linear-gradient(135deg, #60a5fa, #a855f7, #ec4899)",
+          color: "white",
+          fontWeight: 600,
+          border: "2px solid rgba(255,255,255,0.15)",
+          boxShadow: "0 4px 18px rgba(0,0,0,0.35)",
+          backdropFilter: "blur(8px)",
+          cursor: "pointer",
+          opacity: isLoggingOut ? 0.5 : 1,
+          transition: "opacity 0.25s ease",
+        }}
+      >
+        ⚡ {username}（ログアウト）
+      </button>
+
       <div
         style={{
           minHeight: "100vh",
@@ -182,8 +247,7 @@ const App: React.FC = () => {
               "opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease",
           }}
         >
-          {/*（略：既存 UI 一式） */}
-
+          {/* カードエリア */}
           <div
             style={{
               position: "relative",
@@ -191,14 +255,13 @@ const App: React.FC = () => {
               height: "min(60vh, 460px)",
             }}
           >
-            {/* ★ 改善案④：DOMの枚数を5以下に制限 */}
             {items.slice(0, 5).map((item, idx) => (
               <div
                 key={item.id}
                 style={{
                   position: "absolute",
                   inset: 0,
-                  zIndex: 5 - idx, // 枚数に合わせて zIndex を調整
+                  zIndex: 5 - idx,
                 }}
               >
                 <SwipeCard
@@ -212,7 +275,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* 詳細モーダル */}
+      {/* 詳細モーダル（現状維持） */}
       {selectedItem && (
         <div
           style={{
@@ -225,9 +288,7 @@ const App: React.FC = () => {
             zIndex: 9999,
           }}
           onClick={handleCloseDetail}
-        >
-          {/* （略：あなたの既存詳細 UI） */}
-        </div>
+        ></div>
       )}
 
       {showLoggedOutToast && (
