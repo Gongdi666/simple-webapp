@@ -26,5 +26,5 @@ public class User {
     private String password; // BCryptでハッシュ
 
     @Column(nullable = false)
-    private String role; // "USER", "ADMIN" など
+    private String role; // ENGINEER / SALES / ADMIN
 }

@@ -21,10 +21,13 @@ public class Project {
 
     private String client;
 
+    @Column(name = "tech_stack")
     private String techStack;
 
+    @Column(name = "unit_price")
     private Integer unitPrice;
 
+    @Column(name = "work_style")
     private String workStyle;
 
     // --- 追加 ---
@@ -36,5 +39,9 @@ public class Project {
 
     private String summary;
 
+    @Column(name = "sort_order")
     private Integer sortOrder;
+
+    @Column(name = "created_by")
+    private Long createdBy;
 }

@@ -23,7 +23,7 @@ public class DataInitializer {
                                 User user = new User();
                                 user.setUsername("test");
                                 user.setPassword(passwordEncoder.encode("password"));
-                                user.setRole("ROLE_USER"); // enumや別カラムなら合わせて
+                                user.setRole("ENGINEER"); // enumや別カラムなら合わせて
                                 userRepository.save(user);
                             }
                     );

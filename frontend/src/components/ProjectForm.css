@@ -1,0 +1,90 @@
+.project-form {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 28px;
+  border-radius: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  color: #e2e8f0;
+  font-family: "Inter", sans-serif;
+}
+
+.form-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #f8fafc;
+}
+
+.project-form label {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.project-form input,
+.project-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.55);
+  color: #f1f5f9;
+  outline: none;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.project-form input:focus,
+.project-form textarea:focus {
+  border-color: #60a5fa;
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.project-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 28px;
+  padding: 14px 0;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.submit-btn:hover {
+  transform: scale(1.02);
+  opacity: 0.92;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+  opacity: 0.85;
+}
+
+/* レスポンシブ（スマホ最適化） */
+@media (max-width: 480px) {
+  .project-form {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .submit-btn {
+    font-size: 1rem;
+  }
+}

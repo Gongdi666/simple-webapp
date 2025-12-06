@@ -3,25 +3,31 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/api";
 
+// -----------------------------
 // JWT Token Utilities
-export const getToken = (): string | null => localStorage.getItem("token");
-export const setToken = (token: string): void => localStorage.setItem("token", token);
-export const clearToken = (): void => localStorage.removeItem("token");
+// -----------------------------
+export const getToken = (): string | null =>
+  localStorage.getItem("token");
+
+export const setToken = (token: string): void =>
+  localStorage.setItem("token", token);
+
+export const clearToken = (): void =>
+  localStorage.removeItem("token");
 
 // -----------------------------
 // ◎ 共通 API 呼び出し
 // -----------------------------
-export async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
+export async function apiFetch(
+  path: string,
+  options: RequestInit = {}
+): Promise<any> {
   const token = getToken();
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
@@ -30,8 +36,11 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
   });
 
   // OPTIONS のように Body が無いレスポンスも正常扱いする
-  if (res.status === 204 || res.status === 200 && res.headers.get("Content-Length") === "0") {
-    return null; // POST を阻害せず通過させる
+  if (
+    res.status === 204 ||
+    (res.status === 200 && res.headers.get("Content-Length") === "0")
+  ) {
+    return null;
   }
 
   if (res.status === 401 || res.status === 403) {
@@ -43,7 +52,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     let text = "";
     try {
       text = await res.text();
-    } catch (_) {
+    } catch {
       text = "";
     }
     throw new Error(text || `API Error: ${res.status}`);
@@ -57,7 +66,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
 }
 
 // -----------------------------
-// ◎ Login
+// ◎ Login（token / username / role を返す）
 // -----------------------------
 export const login = async (username: string, password: string) => {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -70,5 +79,12 @@ export const login = async (username: string, password: string) => {
     throw new Error(`Login failed: ${res.status}`);
   }
 
-  return (await res.json()) as { token: string };
+  // バックエンドからの JSON: { token, username, role }
+  const data = await res.json();
+
+  return {
+    token: data.token as string,
+    username: data.username as string,
+    role: data.role as string,
+  };
 };

@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import security.JwtTokenProvider;
 import security.dto.LoginRequest;
 import security.dto.LoginResponse;
+import security.dto.LoginSuccessResponse;
+import user.entity.User;
+import user.service.CustomUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,6 +23,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -30,11 +35,26 @@ public class AuthController {
                     )
             );
 
+            // JWT 生成
             String token = jwtTokenProvider.generateToken(auth);
-            return ResponseEntity.ok(new LoginResponse(token));
+
+            // username から User を取得
+            UserDetails details = customUserDetailsService.loadUserByUsername(request.getUsername());
+            User user = (User) ((security.CustomUserDetails) details).getUser();
+
+            // ロールは DB に保存されている値を返す
+            String role = user.getRole();
+
+            return ResponseEntity.ok(
+                    new LoginResponse(
+                            token,
+                            user.getUsername(),
+                            role
+                    )
+            );
 
         } catch (AuthenticationException ex) {
-            ex.printStackTrace(); // ← 一時的にログに出す
+            ex.printStackTrace();
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("Invalid username or password");

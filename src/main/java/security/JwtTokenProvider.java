@@ -25,23 +25,28 @@ public class JwtTokenProvider {
             @Value("${app.jwt.secret}") String secret,
             @Value("${app.jwt.validity-ms}") long validityInMs
     ) {
-        // 環境変数 or application.yml から受け取ったシークレットをキー化
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.validityInMs = validityInMs;
     }
 
     /**
-     * 新実装：ユーザー名＋権限一覧からトークン生成
+     * 標準のロール情報を JWT に格納するトークン生成処理
      */
     public String createToken(String username, Collection<? extends GrantedAuthority> authorities) {
         long now = System.currentTimeMillis();
         Date validity = new Date(now + validityInMs);
 
-        String roles = authorities == null ? "" :
-                authorities.stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.joining(","));
+        // GrantedAuthority → "ROLE_XXX,ROLE_YYY" 形式へ（null 安全）
+        String roles = (authorities == null || authorities.isEmpty())
+                ? ""
+                : authorities.stream()
+                .map(a -> {
+                    // ROLE_ が付いていない権限は補正する
+                    String r = a.getAuthority();
+                    return r.startsWith("ROLE_") ? r : "ROLE_" + r;
+                })
+                .collect(Collectors.joining(","));
 
         return Jwts.builder()
                 .setSubject(username)
@@ -53,7 +58,7 @@ public class JwtTokenProvider {
     }
 
     /**
-     * 既存コード互換用：AuthController から呼ばれているメソッド
+     * Authentication から JWT を生成（既存コード互換）
      */
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
@@ -62,7 +67,7 @@ public class JwtTokenProvider {
     }
 
     /**
-     * 新実装：トークンから username を取得
+     * トークンから username を取得
      */
     public String getUsername(String token) {
         return Jwts.parserBuilder()
@@ -73,9 +78,6 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    /**
-     * 既存コード互換用：JwtAuthenticationFilter から呼ばれているメソッド
-     */
     public String getUsernameFromToken(String token) {
         return getUsername(token);
     }

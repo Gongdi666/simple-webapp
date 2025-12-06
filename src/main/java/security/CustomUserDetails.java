@@ -2,11 +2,13 @@ package security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import user.entity.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
@@ -19,7 +21,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        // ★ DB の role を Spring Security 用の権限に変換
+        //   ENGINEER → ROLE_ENGINEER
+        //   SALES    → ROLE_SALES
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     public User getUser() {

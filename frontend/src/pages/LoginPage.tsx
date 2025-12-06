@@ -11,7 +11,9 @@ export default function LoginPage() {
     setError(null);
     try {
       const { token } = await login(username, password);
-      localStorage.setItem("jwt", token);
+      localStorage.setItem("token", token); // ← ここを修正（jwt → token）
+      localStorage.setItem("username", username);
+      localStorage.setItem("role", role);   // login API が返すなら
       window.location.href = "/";
     } catch (err) {
       setError("ログインに失敗しました");

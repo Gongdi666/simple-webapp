@@ -34,18 +34,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF / CORS / Session
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
+                        // CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll() // ログイン系は全許可
-                        .requestMatchers("/api/projects").authenticated()
-                        .requestMatchers("/api/project-likes").authenticated()
+
+                        // 認証不要（ログインAPI）
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // 営業（SALES) 用
+                        .requestMatchers("/api/projects/**").hasAnyRole("SALES", "ADMIN")
+
+                        // エンジニア（ENGINEER) 用
+                        .requestMatchers("/api/swipe/**").hasAnyRole("ENGINEER", "ADMIN")
+
+                        // その他は要認証
                         .anyRequest().authenticated()
                 );
 
-        // JWT フィルタは UsernamePasswordAuthenticationFilter より前
+        // JWT フィルターの配置順
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -53,7 +64,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // {bcrypt}～ 形式に対応する DelegatingPasswordEncoder
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
@@ -68,7 +78,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://simple-webapp-front-production.up.railway.app"));
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "https://simple-webapp-front-production.up.railway.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);

@@ -2,32 +2,44 @@ package project.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import project.dto.ProjectLikeRequest;
 import project.dto.ProjectLikeResponse;
+import project.entity.Project;
 import project.entity.ProjectLike;
 import project.service.ProjectLikeService;
+import project.service.ProjectService;
 import security.CustomUserDetails;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/project-likes")
+@RequestMapping("/api/swipe")
 @RequiredArgsConstructor
-public class ProjectLikeController {
+public class SwipeController {
 
+    private final ProjectService projectService;
     private final ProjectLikeService projectLikeService;
 
     /**
-     * スワイプ結果（LIKE / DISLIKE / HOLD）の登録（Upsert 相当）
-     * フロントからは JSON:
-     * { "projectId": 1, "verdict": "LIKE", "comment": "" }
-     * が送られてくる前提。
+     * ① スワイプ用案件一覧取得
+     *
      */
-    @PostMapping
+    @GetMapping("/projects")
+    public List<Project> getSwipeProjects() {
+        return projectService.findAll();
+        // 必要なら filter（未LIKEだけ）に変える
+    }
+
+    /**
+     * ② LIKE / DISLIKE 登録
+     *
+     */
+    @PostMapping("/project-likes")
     public ProjectLikeResponse addOrUpdateVote(
             @RequestBody ProjectLikeRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -49,9 +61,9 @@ public class ProjectLikeController {
     }
 
     /**
-     * 指定プロジェクトのスワイプ結果一覧取得（用途が出てきたら使う想定）
+     * ③ ある案件の LIKE 情報一覧
      */
-    @GetMapping("/{projectId}")
+    @GetMapping("/project-likes/{projectId}")
     public List<ProjectLikeResponse> getVotes(@PathVariable Long projectId) {
         return projectLikeService.getProjectVotes(projectId).stream()
                 .map(ProjectLikeResponse::from)
